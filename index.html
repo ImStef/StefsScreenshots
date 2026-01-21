@@ -5,24 +5,6 @@
   <title>Achievement Gallery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!--
-    IMPORTANT NOTE (READ THIS):
-    ---------------------------
-    If images are not loading:
-    1) This file MUST be named index.html
-    2) It MUST live at the repo root
-    3) Images MUST be committed to GitHub
-    4) Paths are case-sensitive on GitHub Pages
-
-    Correct example:
-      index.html
-      images/
-        silent-hill/
-          cover.jpg
-          endings-thumb.jpg
-          endings-full.jpg
-  -->
-
   <style>
     :root {
       --bg: #0e0e10;
@@ -39,7 +21,7 @@
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-family: system-ui, sans-serif;
       background: var(--bg);
       color: var(--fg);
       overflow-x: hidden;
@@ -60,16 +42,14 @@
     }
 
     .home-btn {
+      font-size: 1.1rem;
       font-weight: 700;
-      font-size: 1.05rem;
       color: var(--accent);
       cursor: pointer;
-      user-select: none;
-      padding: 6px 10px;
+      display: none;
     }
 
     .viewport {
-      position: relative;
       width: 200vw;
       height: 100vh;
       display: flex;
@@ -91,20 +71,16 @@
 
     .tile {
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease;
     }
 
     .tile img {
       width: 100%;
-      height: auto;
       border-radius: var(--radius);
       display: block;
     }
 
-    .tile:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+    .tile:hover { transform: translateY(-4px); }
 
     .tile-title {
       margin-top: 6px;
@@ -116,7 +92,7 @@
     .lightbox {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       display: none;
       align-items: center;
       justify-content: center;
@@ -134,65 +110,53 @@
     .lightbox-content img {
       width: 100%;
       border-radius: var(--radius);
+      cursor: pointer;
     }
 
     .close-btn {
       position: absolute;
       top: 12px;
       left: 12px;
-      font-size: 32px;
-      font-weight: 700;
-      cursor: pointer;
-      background: rgba(0,0,0,0.6);
-      border-radius: 50%;
       width: 44px;
       height: 44px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      font-size: 28px;
+      font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    @media (max-width: 1300px) {
-      .grid { grid-template-columns: repeat(3, var(--tile-w)); }
-    }
-
-    @media (max-width: 800px) {
-      .grid { grid-template-columns: repeat(2, var(--tile-w)); }
+      cursor: pointer;
     }
   </style>
 </head>
+
 <body>
 
-<div class="topbar" id="topbar">
-  <div class="home-btn" id="homeBtn" onclick="goHome()" style="display:none">Home</div>
-</div>
-</div>
+<div class="topbar">
+  <div class="home-btn" id="homeBtn" onclick="goHome()">Home</div>
 </div>
 
 <div class="viewport" id="viewport">
 
-  <!-- GAME SELECT -->
   <section class="page">
     <div class="grid" id="game-grid"></div>
   </section>
 
-  <!-- GALLERY -->
   <section class="page">
     <div class="grid" id="gallery-grid"></div>
   </section>
 
 </div>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+<div class="lightbox" id="lightbox">
   <div class="lightbox-content">
-    <div class="close-btn">✕</div>
+    <div class="close-btn" onclick="closeLightbox()">✕</div>
     <img id="lightbox-img" />
   </div>
 </div>
 
 <script>
-/* ================= GAME DATA ================= */
 const games = {
   "silent-hill": {
     title: "Silent Hill",
@@ -201,115 +165,10 @@ const games = {
       {
         thumb: "images/silent-hill/f-endings-full.jpg",
         full: "images/silent-hill/f-endings-full.jpg",
-        title: "Silent Hill:f | All Endings"
+        title: "Silent Hill f – All Endings"
       }
     ]
   }
 };
-</script>
 
-
-/* ================= INIT ================= */
-const gameGrid = document.getElementById('game-grid');
-const galleryGrid = document.getElementById('gallery-grid');
-const viewport = document.getElementById('viewport');
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
-const homeBtn = document.getElementById('homeBtn');
-
-for (const id in games) {
-  const g = games[id];
-  gameGrid.innerHTML += `
-    <div class="tile" onclick="openGame('${id}')">
-      <img src="${g.cover}" />
-      <div class="tile-title">${g.title}</div>
-    </div>`;
-}
-
-/* ================= NAV ================= */
-function openGame(id) {
-  history.pushState({ page: 'game', id }, '', '#' + id);
-  loadGallery(id);
-  viewport.style.transform = 'translateX(-100vw)';
-  homeBtn.style.display = 'block';
-}, '', '#' + id);
-  loadGallery(id);
-  viewport.style.transform = 'translateX(-100vw)';
-  document.getElementById('homeBtn').style.display = 'block';
-}, '', '#' + id);
-  loadGallery(id);
-  viewport.style.transform = 'translateX(-100vw)';
-}
-
-function goHome() {
-  history.pushState({ page: 'home' }, '', '#');
-  viewport.style.transform = 'translateX(0)';
-  homeBtn.style.display = 'none';
-}, '', '#');
-  viewport.style.transform = 'translateX(0)';
-  document.getElementById('homeBtn').style.display = 'none';
-}, '', '#');
-  viewport.style.transform = 'translateX(0)';
-}
-
-window.onpopstate = () => {
-  if (location.hash) {
-    const id = location.hash.substring(1);
-    if (games[id]) {
-      loadGallery(id);
-      viewport.style.transform = 'translateX(-100vw)';
-      homeBtn.style.display = 'block';
-    }
-  } else {
-    viewport.style.transform = 'translateX(0)';
-    homeBtn.style.display = 'none';
-  }
-};
-
-/* ================= GALLERY ================= */
-function loadGallery(id) {
-  galleryGrid.innerHTML = '';
-  games[id].images.forEach(img => {
-    galleryGrid.innerHTML += `
-      <div class="tile" onclick="openLightbox('${img.full}')">
-        <img src="${img.thumb}" />
-        <div class="tile-title">${img.title}</div>
-      </div>`;
-  });
-}
-
-/* ================= LIGHTBOX ================= */
-function openLightbox(src) {
-  lightboxImg.src = src;
-  lightbox.classList.add('active');
-}
-
-lightboxImg.addEventListener('click', () => {
-  lightbox.classList.remove('active');
-  lightboxImg.src = '';
-});
-  lightboxImg.src = '';
-});
-
-function closeLightbox(e) {
-  if (e.target === lightbox || e.target.classList.contains('close-btn')) {
-    lightbox.classList.remove('active');
-    lightboxImg.src = '';
-  }
-}
-
-/* ================= KEYBOARD ================= */
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    if (lightbox.classList.contains('active')) {
-      lightbox.classList.remove('active');
-      lightboxImg.src = '';
-    } else {
-      goHome();
-    }
-  }
-});
-</script>
-
-</body>
-</html>
+const gameGrid = document.getElementById('
