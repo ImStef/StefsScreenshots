@@ -164,7 +164,8 @@
 <body>
 
 <div class="topbar" id="topbar">
-  <div class="home-btn" id="homeBtn" onclick="goHome()">Home</div>
+  <div class="home-btn" id="homeBtn" onclick="goHome()" style="display:none">Home</div>
+</div>
 </div>
 </div>
 
@@ -197,7 +198,7 @@ const games = {
     title: "Silent Hill",
     cover: "images/silent-hill/cover.jpg",
     images: [
-      { thumb: "images/silent-hill/f-endings-full.jpg", full: "images/silent-hill/f-endings-full.jpg", title: "Silent Hill: f | All Endings" }
+      { thumb: "images/silent-hill/f-endings-full.jpg", full: "images/silent-hill/f-endings-full.jpg", title: "All Endings" }
     ]
   }
 };
@@ -208,6 +209,7 @@ const galleryGrid = document.getElementById('gallery-grid');
 const viewport = document.getElementById('viewport');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
+const homeBtn = document.getElementById('homeBtn');
 
 for (const id in games) {
   const g = games[id];
@@ -223,6 +225,10 @@ function openGame(id) {
   history.pushState({ page: 'game', id }, '', '#' + id);
   loadGallery(id);
   viewport.style.transform = 'translateX(-100vw)';
+  homeBtn.style.display = 'block';
+}, '', '#' + id);
+  loadGallery(id);
+  viewport.style.transform = 'translateX(-100vw)';
   document.getElementById('homeBtn').style.display = 'block';
 }, '', '#' + id);
   loadGallery(id);
@@ -232,6 +238,9 @@ function openGame(id) {
 function goHome() {
   history.pushState({ page: 'home' }, '', '#');
   viewport.style.transform = 'translateX(0)';
+  homeBtn.style.display = 'none';
+}, '', '#');
+  viewport.style.transform = 'translateX(0)';
   document.getElementById('homeBtn').style.display = 'none';
 }, '', '#');
   viewport.style.transform = 'translateX(0)';
@@ -240,10 +249,14 @@ function goHome() {
 window.onpopstate = () => {
   if (location.hash) {
     const id = location.hash.substring(1);
-    loadGallery(id);
-    viewport.style.transform = 'translateX(-100vw)';
+    if (games[id]) {
+      loadGallery(id);
+      viewport.style.transform = 'translateX(-100vw)';
+      homeBtn.style.display = 'block';
+    }
   } else {
     viewport.style.transform = 'translateX(0)';
+    homeBtn.style.display = 'none';
   }
 };
 
@@ -267,6 +280,8 @@ function openLightbox(src) {
 
 lightboxImg.addEventListener('click', () => {
   lightbox.classList.remove('active');
+  lightboxImg.src = '';
+});
   lightboxImg.src = '';
 });
 
