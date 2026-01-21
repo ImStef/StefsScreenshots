@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Achievement Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #0e0e10;
+      --fg: #eaeaea;
+      --muted: #9aa0a6;
+      --accent: #6aa9ff;
+      --tile-w: 240px; /* adjust to taste */
+      --gap: 16px;
+      --radius: 10px;
+      --transition: 0.45s cubic-bezier(.4,0,.2,1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ---------- TOP BAR ---------- */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      background: rgba(14,14,16,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+
+    .home-btn {
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ---------- PAGE WRAPPER ---------- */
+    .viewport {
+      position: relative;
+      width: 200vw; /* two pages side-by-side */
+      height: 100vh;
+      display: flex;
+      transition: transform var(--transition);
+    }
+
+    .page {
+      width: 100vw;
+      padding: 96px 40px 40px;
+      overflow-y: auto;
+    }
+
+    /* ---------- GRID ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, var(--tile-w));
+      gap: var(--gap);
+      justify-content: center;
+    }
+
+    .tile {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tile img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      display: block;
+    }
+
+    .tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .tile-title {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ---------- LIGHTBOX ---------- */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+
+    .lightbox.active { display: flex; }
+
+    .lightbox-content {
+      position: relative;
+      max-width: 1920px;
+      max-height: 1080px;
+      width: 90vw;
+      height: auto;
+    }
+
+    .lightbox-content img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+    }
+
+    .lightbox-title {
+      text-align: center;
+      margin-top: 10px;
+      color: var(--muted);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      font-size: 28px;
+      cursor: pointer;
+      color: var(--fg);
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 1300px) {
+      .grid { grid-template-columns: repeat(3, var(--tile-w)); }
+    }
+
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: repeat(2, var(--tile-w)); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="home-btn" onclick="goHome()">Home</div>
+  </div>
+
+  <div class="viewport" id="viewport">
+
+    <!-- ========== PAGE 1: GAME SELECT ========== -->
+    <section class="page">
+      <div class="grid">
+        <div class="tile" onclick="openGame('game1')">
+          <img src="images/game1.jpg" alt="Game 1" />
+          <div class="tile-title">Game Title 1</div>
+        </div>
+        <!-- duplicate tiles as needed -->
+      </div>
+    </section>
+
+    <!-- ========== PAGE 2: IMAGE GALLERY ========== -->
+    <section class="page">
+      <div class="grid">
+        <div class="tile" onclick="openLightbox('images/shot1_1920x1080.jpg', 'Optional Image Title')">
+          <img src="images/shot1_thumb.jpg" alt="" />
+          <div class="tile-title">Optional Image Title</div>
+        </div>
+        <!-- duplicate tiles as needed -->
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ========== LIGHTBOX ========== -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-content">
+      <div class="close-btn">✕</div>
+      <img id="lightbox-img" src="" alt="" />
+      <div class="lightbox-title" id="lightbox-title"></div>
+    </div>
+  </div>
+
+  <script>
+    const viewport = document.getElementById('viewport');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxTitle = document.getElementById('lightbox-title');
+
+    function openGame(gameId) {
+      viewport.style.transform = 'translateX(-100vw)';
+      // later: load per-game content dynamically using gameId
+    }
+
+    function goHome() {
+      viewport.style.transform = 'translateX(0)';
+    }
+
+    function openLightbox(src, title) {
+      lightboxImg.src = src;
+      lightboxTitle.textContent = title || '';
+      lightbox.classList.add('active');
+    }
+
+    function closeLightbox(e) {
+      if (e.target === lightbox || e.target.classList.contains('close-btn')) {
+        lightbox.classList.remove('active');
+        lightboxImg.src = '';
+      }
+    }
+  </script>
+
+</body>
+</html>
