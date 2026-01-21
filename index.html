@@ -60,10 +60,12 @@
     }
 
     .home-btn {
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.05rem;
       color: var(--accent);
       cursor: pointer;
       user-select: none;
+      padding: 6px 10px;
     }
 
     .viewport {
@@ -136,10 +138,18 @@
 
     .close-btn {
       position: absolute;
-      top: -40px;
-      right: 0;
-      font-size: 28px;
+      top: 12px;
+      left: 12px;
+      font-size: 32px;
+      font-weight: 700;
       cursor: pointer;
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     @media (max-width: 1300px) {
@@ -153,8 +163,9 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="home-btn" onclick="goHome()">Home</div>
+<div class="topbar" id="topbar">
+  <div class="home-btn" id="homeBtn" onclick="goHome()">Home</div>
+</div>
 </div>
 
 <div class="viewport" id="viewport">
@@ -186,7 +197,7 @@ const games = {
     title: "Silent Hill",
     cover: "images/silent-hill/cover.jpg",
     images: [
-      { thumb: "images/silent-hill/f-endings-full.jpg", full: "images/silent-hill/f-endings-full.jpg", title: "All Endings" }
+      { thumb: "images/silent-hill/f-endings-full.jpg", full: "images/silent-hill/f-endings-full.jpg", title: "Silent Hill: f | All Endings" }
     ]
   }
 };
@@ -212,10 +223,17 @@ function openGame(id) {
   history.pushState({ page: 'game', id }, '', '#' + id);
   loadGallery(id);
   viewport.style.transform = 'translateX(-100vw)';
+  document.getElementById('homeBtn').style.display = 'block';
+}, '', '#' + id);
+  loadGallery(id);
+  viewport.style.transform = 'translateX(-100vw)';
 }
 
 function goHome() {
   history.pushState({ page: 'home' }, '', '#');
+  viewport.style.transform = 'translateX(0)';
+  document.getElementById('homeBtn').style.display = 'none';
+}, '', '#');
   viewport.style.transform = 'translateX(0)';
 }
 
@@ -247,6 +265,11 @@ function openLightbox(src) {
   lightbox.classList.add('active');
 }
 
+lightboxImg.addEventListener('click', () => {
+  lightbox.classList.remove('active');
+  lightboxImg.src = '';
+});
+
 function closeLightbox(e) {
   if (e.target === lightbox || e.target.classList.contains('close-btn')) {
     lightbox.classList.remove('active');
@@ -258,7 +281,8 @@ function closeLightbox(e) {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (lightbox.classList.contains('active')) {
-      closeLightbox(e);
+      lightbox.classList.remove('active');
+      lightboxImg.src = '';
     } else {
       goHome();
     }
