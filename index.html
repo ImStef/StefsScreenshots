@@ -169,4 +169,113 @@ body {
 
 <div class="lightbox" id="lightbox">
   <div class="lightbox-content">
-    <div class="clos
+    <div class="close-btn" id="closeBtn">✕</div>
+    <img id="lightboxImg">
+  </div>
+</div>
+
+<script>
+/* ---------- DATA ---------- */
+const games = {
+  "agadah": {
+    title: "A Game About Digging a Hole",
+    cover: "images/agadah/cover.png",
+    images: [
+      {
+        thumb: "images/agdah/full-hole.png",
+        full: "images/agdah/full-hole.png",
+        title: "Completely dug out hole"
+      }
+    ]
+  },
+  
+  "silent-hill": {
+    title: "Silent Hill",
+    cover: "images/silent-hill/cover.jpg",
+    images: [
+      {
+        thumb: "images/silent-hill/f-endings-full.jpg",
+        full: "images/silent-hill/f-endings-full.jpg",
+        title: "Silent Hill: f | All Endings"
+      }
+    ]
+  }
+};
+
+/* ---------- ELEMENTS ---------- */
+const viewport = document.getElementById('viewport');
+const gameGrid = document.getElementById('gameGrid');
+const galleryGrid = document.getElementById('galleryGrid');
+const homeBtn = document.getElementById('homeBtn');
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const closeBtn = document.getElementById('closeBtn');
+
+/* ---------- BUILD HOME ---------- */
+for (const id in games) {
+  const g = games[id];
+  const tile = document.createElement('div');
+  tile.className = 'tile';
+  tile.innerHTML = `
+    <img src="${g.cover}">
+    <div class="tile-title">${g.title}</div>
+  `;
+  tile.onclick = () => openGame(id);
+  gameGrid.appendChild(tile);
+}
+
+/* ---------- NAV ---------- */
+function openGame(id) {
+  loadGallery(id);
+  viewport.style.transform = 'translateX(-100vw)';
+  homeBtn.style.display = 'block';
+}
+
+function goHome() {
+  viewport.style.transform = 'translateX(0)';
+  homeBtn.style.display = 'none';
+}
+
+homeBtn.onclick = goHome;
+
+/* ---------- GALLERY ---------- */
+function loadGallery(id) {
+  galleryGrid.innerHTML = '';
+  games[id].images.forEach(img => {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.innerHTML = `
+      <img src="${img.thumb}">
+      <div class="tile-title">${img.title}</div>
+    `;
+    tile.onclick = () => openLightbox(img.full);
+    galleryGrid.appendChild(tile);
+  });
+}
+
+/* ---------- LIGHTBOX ---------- */
+function openLightbox(src) {
+  lightboxImg.src = src;
+  lightbox.classList.add('active');
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('active');
+  lightboxImg.src = '';
+}
+
+closeBtn.onclick = closeLightbox;
+lightboxImg.onclick = closeLightbox;
+lightbox.onclick = e => { if (e.target === lightbox) closeLightbox(); };
+
+/* ---------- KEYS ---------- */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (lightbox.classList.contains('active')) closeLightbox();
+    else goHome();
+  }
+});
+</script>
+
+</body>
+</html>
