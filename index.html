@@ -12,7 +12,6 @@
   --muted: #9aa0a6;
   --accent: #6aa9ff;
   --tile-w: 240px;
-  --tile-h: 135px;
   --gap: 16px;
   --radius: 10px;
   --transition: 0.45s cubic-bezier(.4,0,.2,1);
@@ -37,10 +36,20 @@ body {
   height: 56px;
   display: flex;
   align-items: center;
+  gap: 16px;
   padding: 0 20px;
   background: rgba(14,14,16,0.85);
   backdrop-filter: blur(8px);
   z-index: 10;
+}
+
+#searchInput {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: #1b1b1f;
+  color: var(--fg);
+  width: 220px;
 }
 
 .home-btn {
@@ -80,7 +89,7 @@ body {
 
 .tile img {
   width: 100%;
-  height: var(--tile-h);
+  height: 135px;
   object-fit: cover;
   border-radius: var(--radius);
   display: block;
@@ -136,7 +145,6 @@ body {
   cursor: pointer;
 }
 
-/* ---------- RESPONSIVE ---------- */
 @media (max-width: 1300px) {
   .grid { grid-template-columns: repeat(3, var(--tile-w)); }
 }
@@ -146,18 +154,16 @@ body {
 }
 </style>
 </head>
-
 <body>
 
-<div class="topbar" id="topbar">
-  <input id="searchInput" type="text" placeholder="Search games…" style="display:none; margin-right:16px; padding:6px 10px; border-radius:6px; border:none; outline:none; background:#1b1b1f; color:#eaeaea; width:220px;">
-  <div class="home-btn" id="homeBtn" onclick="goHome()" style="display:none">Home</div>
-</div>
+<div class="topbar">
+  <input id="searchInput" type="text" placeholder="Search games…">
+  <div class="home-btn" id="homeBtn">Home</div>
 </div>
 
 <div class="viewport" id="viewport">
 
-  <!-- HOME / GAME SELECT -->
+  <!-- HOME -->
   <section class="page">
     <div class="grid" id="gameGrid"></div>
   </section>
@@ -177,7 +183,7 @@ body {
 </div>
 
 <script>
-/* ---------- GAME DATA (YOUR SECTION) ---------- */
+/* ---------- DATA ---------- */
 const games = {
   "agadah": {
     title: "A Game About Digging a Hole",
@@ -190,7 +196,6 @@ const games = {
       }
     ]
   },
-
   "silent-hill": {
     title: "Silent Hill",
     cover: "images/silent-hill/cover.jpg",
@@ -214,13 +219,15 @@ const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightboxImg');
 const closeBtn = document.getElementById('closeBtn');
 
-/* ---------- BUILD HOME ---------- */
+/* ---------- HOME ---------- */
 function buildHome(filter = '') {
   gameGrid.innerHTML = '';
-  const query = filter.toLowerCase();
+  const q = filter.toLowerCase();
+
   for (const id in games) {
     const g = games[id];
-    if (!g.title.toLowerCase().includes(query)) continue;
+    if (!g.title.toLowerCase().includes(q)) continue;
+
     const tile = document.createElement('div');
     tile.className = 'tile';
     tile.innerHTML = `
@@ -259,7 +266,7 @@ function loadGallery(id) {
     const tile = document.createElement('div');
     tile.className = 'tile';
     tile.innerHTML = `
-      <img src="${img.thumb}" loading="lazy" decoding="async">
+      <img loading="lazy" decoding="async" src="${img.thumb}">
       <div class="tile-title">${img.title}</div>
     `;
     tile.onclick = () => openLightbox(img.full);
@@ -290,12 +297,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-searchInput.addEventListener('input', e => {
-  buildHome(e.target.value);
-});
-    else goHome();
-  }
-});
+searchInput.addEventListener('input', e => buildHome(e.target.value));
 </script>
 
 </body>
