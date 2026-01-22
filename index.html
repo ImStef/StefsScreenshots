@@ -1,307 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Achievement Gallery</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>Achievement Gallery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!--
-    IMPORTANT NOTE (READ THIS):
-    ---------------------------
-    If images are not loading:
-    1) This file MUST be named index.html
-    2) It MUST live at the repo root
-    3) Images MUST be committed to GitHub
-    4) Paths are case-sensitive on GitHub Pages
+<style>
+:root {
+  --bg: #0e0e10;
+  --fg: #eaeaea;
+  --muted: #9aa0a6;
+  --accent: #6aa9ff;
+  --tile-w: 240px;
+  --tile-h: 135px;
+  --gap: 16px;
+  --radius: 10px;
+  --transition: 0.45s cubic-bezier(.4,0,.2,1);
+}
 
-    Correct example:
-      index.html
-      images/
-        silent-hill/
-          cover.jpg
-          endings-thumb.jpg
-          endings-full.jpg
-  -->
+* { box-sizing: border-box; }
 
-  <style>
-    :root {
-      --bg: #0e0e10;
-      --fg: #eaeaea;
-      --muted: #9aa0a6;
-      --accent: #6aa9ff;
-      --tile-w: 240px;
-      --gap: 16px;
-      --radius: 10px;
-      --transition: 0.45s cubic-bezier(.4,0,.2,1);
-    }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+}
 
-    * { box-sizing: border-box; }
+/* ---------- TOP BAR ---------- */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: rgba(14,14,16,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
 
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      overflow-x: hidden;
-    }
+.home-btn {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  display: none;
+}
 
-    .topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      background: rgba(14,14,16,0.85);
-      backdrop-filter: blur(8px);
-      z-index: 100;
-    }
+/* ---------- VIEWPORT ---------- */
+.viewport {
+  width: 200vw;
+  height: 100vh;
+  display: flex;
+  transition: transform var(--transition);
+}
 
-    .home-btn {
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: var(--accent);
-      cursor: pointer;
-      user-select: none;
-      padding: 6px 10px;
-    }
+.page {
+  width: 100vw;
+  padding: 96px 40px 40px;
+  overflow-y: auto;
+}
 
-    .viewport {
-      position: relative;
-      width: 200vw;
-      height: 100vh;
-      display: flex;
-      transition: transform var(--transition);
-    }
+/* ---------- GRID ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, var(--tile-w));
+  gap: var(--gap);
+  justify-content: center;
+}
 
-    .page {
-      width: 100vw;
-      padding: 96px 40px 40px;
-      overflow-y: auto;
-    }
+.tile {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, var(--tile-w));
-      gap: var(--gap);
-      justify-content: center;
-    }
+.tile img {
+  width: 100%;
+  height: var(--tile-h);
+  object-fit: cover;
+  border-radius: var(--radius);
+  display: block;
+}
 
-    .tile {
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.tile:hover { transform: translateY(-4px); }
 
-    .tile img {
-      width: 100%;
-      height: 135px;
-      object-fit: cover;
-      border-radius: var(--radius);
-      display: block;
-    }
+.tile-title {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+}
 
-    .tile:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+/* ---------- LIGHTBOX ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
 
-    .tile-title {
-      margin-top: 6px;
-      font-size: 0.9rem;
-      color: var(--muted);
-      text-align: center;
-    }
+.lightbox.active { display: flex; }
 
-    .lightbox {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-    }
+.lightbox-content {
+  position: relative;
+  max-width: 1920px;
+  width: 90vw;
+}
 
-    .lightbox.active { display: flex; }
+.lightbox-content img {
+  width: 100%;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
 
-    .lightbox-content {
-      position: relative;
-      max-width: 1920px;
-      width: 90vw;
-    }
+.close-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.7);
+  font-size: 28px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
 
-    .lightbox-content img {
-      width: 100%;
-      border-radius: var(--radius);
-    }
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1300px) {
+  .grid { grid-template-columns: repeat(3, var(--tile-w)); }
+}
 
-    .close-btn {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      font-size: 32px;
-      font-weight: 700;
-      cursor: pointer;
-      background: rgba(0,0,0,0.6);
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    @media (max-width: 1300px) {
-      .grid { grid-template-columns: repeat(3, var(--tile-w)); }
-    }
-
-    @media (max-width: 800px) {
-      .grid { grid-template-columns: repeat(2, var(--tile-w)); }
-    }
-  </style>
+@media (max-width: 800px) {
+  .grid { grid-template-columns: repeat(2, var(--tile-w)); }
+}
+</style>
 </head>
+
 <body>
 
 <div class="topbar" id="topbar">
+  <input id="searchInput" type="text" placeholder="Search games…" style="display:none; margin-right:16px; padding:6px 10px; border-radius:6px; border:none; outline:none; background:#1b1b1f; color:#eaeaea; width:220px;">
   <div class="home-btn" id="homeBtn" onclick="goHome()" style="display:none">Home</div>
-</div>
 </div>
 </div>
 
 <div class="viewport" id="viewport">
 
-  <!-- GAME SELECT -->
+  <!-- HOME / GAME SELECT -->
   <section class="page">
-    <div class="grid" id="game-grid"></div>
+    <div class="grid" id="gameGrid"></div>
   </section>
 
   <!-- GALLERY -->
   <section class="page">
-    <div class="grid" id="gallery-grid"></div>
+    <div class="grid" id="galleryGrid"></div>
   </section>
 
 </div>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+<div class="lightbox" id="lightbox">
   <div class="lightbox-content">
-    <div class="close-btn">✕</div>
-    <img id="lightbox-img" />
+    <div class="close-btn" id="closeBtn">✕</div>
+    <img id="lightboxImg">
   </div>
 </div>
 
 <script>
-/* ================= GAME DATA ================= */
+/* ---------- GAME DATA (YOUR SECTION) ---------- */
 const games = {
+  "agadah": {
+    title: "A Game About Digging a Hole",
+    cover: "images/agadah/cover.png",
+    images: [
+      {
+        thumb: "images/agdah/full-hole.png",
+        full: "images/agdah/full-hole.png",
+        title: "Completely dug out hole"
+      }
+    ]
+  },
+
   "silent-hill": {
     title: "Silent Hill",
     cover: "images/silent-hill/cover.jpg",
     images: [
-      { thumb: "images/silent-hill/endings-thumb.jpg", full: "images/silent-hill/endings-full.jpg", title: "All Endings" }
+      {
+        thumb: "images/silent-hill/f-endings-full.jpg",
+        full: "images/silent-hill/f-endings-full.jpg",
+        title: "Silent Hill: f | All Endings"
+      }
     ]
   }
 };
 
-/* ================= INIT ================= */
-const gameGrid = document.getElementById('game-grid');
-const galleryGrid = document.getElementById('gallery-grid');
+/* ---------- ELEMENTS ---------- */
 const viewport = document.getElementById('viewport');
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
+const gameGrid = document.getElementById('gameGrid');
+const galleryGrid = document.getElementById('galleryGrid');
 const homeBtn = document.getElementById('homeBtn');
+const searchInput = document.getElementById('searchInput');
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const closeBtn = document.getElementById('closeBtn');
 
-for (const id in games) {
-  const g = games[id];
-  gameGrid.innerHTML += `
-    <div class="tile" onclick="openGame('${id}')">
-      <img loading="lazy" decoding="async" src="${g.cover}" />
+/* ---------- BUILD HOME ---------- */
+function buildHome(filter = '') {
+  gameGrid.innerHTML = '';
+  const query = filter.toLowerCase();
+  for (const id in games) {
+    const g = games[id];
+    if (!g.title.toLowerCase().includes(query)) continue;
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.innerHTML = `
+      <img loading="lazy" decoding="async" src="${g.cover}">
       <div class="tile-title">${g.title}</div>
-    </div>`;
+    `;
+    tile.onclick = () => openGame(id);
+    gameGrid.appendChild(tile);
+  }
 }
 
-/* ================= NAV ================= */
+buildHome();
+
+/* ---------- NAV ---------- */
 function openGame(id) {
-  history.pushState({ page: 'game', id }, '', '#' + id);
   loadGallery(id);
   viewport.style.transform = 'translateX(-100vw)';
   homeBtn.style.display = 'block';
-}, '', '#' + id);
-  loadGallery(id);
-  viewport.style.transform = 'translateX(-100vw)';
-  document.getElementById('homeBtn').style.display = 'block';
-}, '', '#' + id);
-  loadGallery(id);
-  viewport.style.transform = 'translateX(-100vw)';
+  searchInput.style.display = 'none';
 }
 
 function goHome() {
-  history.pushState({ page: 'home' }, '', '#');
   viewport.style.transform = 'translateX(0)';
   homeBtn.style.display = 'none';
-}, '', '#');
-  viewport.style.transform = 'translateX(0)';
-  document.getElementById('homeBtn').style.display = 'none';
-}, '', '#');
-  viewport.style.transform = 'translateX(0)';
+  searchInput.style.display = 'block';
+  searchInput.value = '';
+  buildHome();
 }
 
-window.onpopstate = () => {
-  if (location.hash) {
-    const id = location.hash.substring(1);
-    if (games[id]) {
-      loadGallery(id);
-      viewport.style.transform = 'translateX(-100vw)';
-      homeBtn.style.display = 'block';
-    }
-  } else {
-    viewport.style.transform = 'translateX(0)';
-    homeBtn.style.display = 'none';
-  }
-};
+homeBtn.onclick = goHome;
 
-/* ================= GALLERY ================= */
+/* ---------- GALLERY ---------- */
 function loadGallery(id) {
   galleryGrid.innerHTML = '';
   games[id].images.forEach(img => {
-    galleryGrid.innerHTML += `
-      <div class="tile" onclick="openLightbox('${img.full}')">
-        <img loading="lazy" decoding="async" src="${img.thumb}" />
-        <div class="tile-title">${img.title}</div>
-      </div>`;
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.innerHTML = `
+      <img src="${img.thumb}" loading="lazy" decoding="async">
+      <div class="tile-title">${img.title}</div>
+    `;
+    tile.onclick = () => openLightbox(img.full);
+    galleryGrid.appendChild(tile);
   });
 }
 
-/* ================= LIGHTBOX ================= */
+/* ---------- LIGHTBOX ---------- */
 function openLightbox(src) {
   lightboxImg.src = src;
   lightbox.classList.add('active');
 }
 
-lightboxImg.addEventListener('click', () => {
+function closeLightbox() {
   lightbox.classList.remove('active');
   lightboxImg.src = '';
-});
-  lightboxImg.src = '';
-});
-
-function closeLightbox(e) {
-  if (e.target === lightbox || e.target.classList.contains('close-btn')) {
-    lightbox.classList.remove('active');
-    lightboxImg.src = '';
-  }
 }
 
-/* ================= KEYBOARD ================= */
+closeBtn.onclick = closeLightbox;
+lightboxImg.onclick = closeLightbox;
+lightbox.onclick = e => { if (e.target === lightbox) closeLightbox(); };
+
+/* ---------- KEYS ---------- */
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    if (lightbox.classList.contains('active')) {
-      lightbox.classList.remove('active');
-      lightboxImg.src = '';
-    } else {
-      goHome();
-    }
+    if (lightbox.classList.contains('active')) closeLightbox();
+    else goHome();
+  }
+});
+
+searchInput.addEventListener('input', e => {
+  buildHome(e.target.value);
+});
+    else goHome();
   }
 });
 </script>
